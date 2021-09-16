@@ -14,7 +14,7 @@ def load_data(DATA_URL):
     data = pd.read_csv(DATA_URL)
     lowercase = lambda x: str(x).lower()
     data.rename(lowercase, axis="columns", inplace=True)
-    data[DATE_TIME] = pd.to_datetime(data[DATE_TIME])
+    data[DATE_TIME] = pd.to_datetime(data[DATE_TIME],format= '%d/%m/%Y %H:%M')
     return data
 
 data1 = load_data(DATA_URL1)
@@ -37,4 +37,7 @@ name = {
 data.rename(name,axis=1,inplace=True)
 necess = data.keys()[0:3]
 data = data[list(necess)].copy()
+start = datetime.datetime(2019,1,1)
+stop = datetime.datetime(2019,1,5)
+data.loc[(data['timestart']> start) % (data['timestart']< stop)]
 data.to_parquet('data.pq')
