@@ -35,4 +35,6 @@ name = {
     'lonstart1':'lon',
 }
 data.rename(name,axis=1,inplace=True)
+necess = data.keys()[0:3]
+data = data[list(necess)].copy()
 data.to_parquet('data.pq')
