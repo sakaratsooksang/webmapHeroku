@@ -23,6 +23,7 @@ data3 = load_data(DATA_URL3)
 data4 = load_data(DATA_URL4)
 data5 = load_data(DATA_URL5)
 data = data1.copy()
+print(data)
 data = data.append(
     data2, ignore_index=True).append(
         data3, ignore_index=True).append(
@@ -31,13 +32,14 @@ data = data.append(
 necess = data.keys()[1:7]
 data = data[list(necess)].copy()
 name = {
-    'latstart1':'lat',
-    'lonstart1':'lon',
+    list(necess)[0]:'lat',
+    list(necess)[1]:'lon'
 }
 data.rename(name,axis=1,inplace=True)
 necess = data.keys()[0:3]
 data = data[list(necess)].copy()
 start = datetime.datetime(2019,1,1)
-stop = datetime.datetime(2019,1,5)
-data.loc[(data['timestart']> start) % (data['timestart']< stop)]
+stop = datetime.datetime(2019,1,6)
+data = data.loc[(data['timestart']> start) & (data['timestart']< stop)]
+print(data)
 data.to_parquet('data.pq')
