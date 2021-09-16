@@ -1,25 +1,23 @@
-#For Study Research only : source code from 
-
 """An example of showing geographic data."""
-
+import numpy as np
 import streamlit as st
 import pandas as pd
 import numpy as np
 import altair as alt
 import pydeck as pdk
-
+import datetime
 # SETTING PAGE CONFIG TO WIDE MODE
 st.set_page_config(layout="wide")
 
 # LOADING DATA
-DATE_TIME = "date/time"
+DATE_TIME = "timestart"
 DATA_URL = (
-    "http://s3-us-west-2.amazonaws.com/streamlit-demo-data/uber-raw-data-sep14.csv.gz"
+    "https://github.com/sakaratsooksang/webmapHeroku/blob/main/data.pq?raw=true"
 )
 
 @st.cache(persist=True)
 def load_data(nrows):
-    data = pd.read_csv(DATA_URL, nrows=nrows)
+    data = pd.read_parquet(DATA_URL)
     lowercase = lambda x: str(x).lower()
     data.rename(lowercase, axis="columns", inplace=True)
     data[DATE_TIME] = pd.to_datetime(data[DATE_TIME])
@@ -54,47 +52,47 @@ def map(data, lat, lon, zoom):
 
 # LAYING OUT THE TOP SECTION OF THE APP
 row1_1, row1_2 = st.columns((2,3))
-
+start = datetime.date(2019,1,1)
+stop = datetime.date(2019,1,5)
 with row1_1:
-    st.title("NYC Uber Ridesharing Data")
+    st.title("Bangkok Metropolitan Region Ridesharing Data")
+    date_selected = st.slider("Select Date of Interesting", start, stop)
     hour_selected = st.slider("Select hour of pickup", 0, 23)
+    
 
 with row1_2:
     st.write(
     """
     ##
-    Examining how Uber pickups vary over time in New York City's and at its major regional airports.
-    By sliding the slider on the left you can view different slices of time and explore different transportation trends.
+    Author : Sakarat Sooksang 6130824521
     """)
-
+    st.write(
+    """
+    Data Science Assignment : Web application creation Using Streamlit.
+    """)
+    st.write(
+    """
+    Source Code : https://share.streamlit.io/streamlit/demo-uber-nyc-pickups/
+    """)
+    st.write(
+    """
+    GitHub Repository :https://github.com/sakaratsooksang/webmapHeroku
+    """)
+    st.write(
+    """
+    Deploy by Heroku.
+    """)
 # FILTERING DATA BY HOUR SELECTED
-data = data[data[DATE_TIME].dt.hour == hour_selected]
-
+data = data[(data[DATE_TIME].dt.date == date_selected) & (data[DATE_TIME].dt.hour == hour_selected)]
 # LAYING OUT THE MIDDLE SECTION OF THE APP WITH THE MAPS
-row2_1, row2_2, row2_3, row2_4 = st.columns((2,1,1,1))
+row2= st.columns((5))
 
 # SETTING THE ZOOM LOCATIONS FOR THE AIRPORTS
-la_guardia= [40.7900, -73.8700]
-jfk = [40.6650, -73.7821]
-newark = [40.7090, -74.1805]
 zoom_level = 12
 midpoint = (np.average(data["lat"]), np.average(data["lon"]))
 
-with row2_1:
-    st.write("**All New York City from %i:00 and %i:00**" % (hour_selected, (hour_selected + 1) % 24))
-    map(data, midpoint[0], midpoint[1], 11)
-
-with row2_2:
-    st.write("**La Guardia Airport**")
-    map(data, la_guardia[0],la_guardia[1], zoom_level)
-
-with row2_3:
-    st.write("**JFK Airport**")
-    map(data, jfk[0],jfk[1], zoom_level)
-
-with row2_4:
-    st.write("**Newark Airport**")
-    map(data, newark[0],newark[1], zoom_level)
+st.write("**Bangkok Metropolitan Region from %i:00 and %i:00**" % (hour_selected, (hour_selected + 1) % 24))
+map(data, midpoint[0], midpoint[1], 11)
 
 # FILTERING DATA FOR THE HISTOGRAM
 filtered = data[
@@ -120,5 +118,5 @@ st.altair_chart(alt.Chart(chart_data)
         tooltip=['minute', 'pickups']
     ).configure_mark(
         opacity=0.5,
-        color='red'
+        color='orange'
     ), use_container_width=True)
